@@ -86,11 +86,11 @@ def get_api_answer(timestamp):
 
 def check_response(response):
     """Функция проверки наличия работ."""
-    if not isinstance(response, dict) or \
-            'homeworks' not in response or \
-            'current_date' not in response or \
-            not isinstance(response['homeworks'], list) or \
-            not isinstance(response['current_date'], int):
+    if (not isinstance(response, dict)
+            or 'homeworks' not in response
+            or 'current_date' not in response
+            or not isinstance(response['homeworks'], list)
+            or not isinstance(response['current_date'], int)):
         raise TypeError('Неверный ответ от API')
     return response['homeworks']
 
@@ -124,14 +124,14 @@ def main():
             homeworks = check_response(response)
             if homeworks and homeworks[0]['status'] != last_status:
                 message = parse_status(homeworks[0])
-                with suppress(Exception):
-                    send_message(bot, message)
+                send_message(bot, message)
                 last_status = homeworks[0]['status']
             timestamp = response.get('current_date', timestamp)
         except Exception as error:
             logging.error(f'Ошибка в работе main функции: {error}')
             message = f'Сбой в работе программы: {error}'
-            send_message(bot, message)
+            with suppress(Exception):
+                send_message(bot, message)
         finally:
             time.sleep(RETRY_PERIOD)
 
